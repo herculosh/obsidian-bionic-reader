@@ -1,52 +1,51 @@
-import { App, Editor, MarkdownView, Modal, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { Editor, MarkdownView, Modal, Plugin } from 'obsidian';
 import { BionicReadingView } from './bionicReadingPreview';
+import { BionicReadingSettingTab } from './BionicReadingSettingTab';
 
 // Remember to rename these classes and interfaces!
 
 interface BionicReaderSettings {
-	mySetting: string;
+	fontWeight: string;
 }
 
 const DEFAULT_SETTINGS: BionicReaderSettings = {
-	mySetting: 'default'
+	fontWeight: '700'
 }
-
 
   
 export default class BionicReader extends Plugin {
 	settings: BionicReaderSettings;
-
+	styleElement: HTMLStyleElement;
 	styleLoaded = false;
 
 	async onload() {
 		await this.loadSettings();
+		const defaultSettings = this.settings;
 
 		this.registerMarkdownPostProcessor((element, context) => {
 
 			if (this.styleLoaded == false) {
 				//const paragraphs = element.querySelectorAll("code");
+				this.styleElement = document.createElement('style');
 				const bionicStyleID = "bionic-reading-style";
+
+				console.log(defaultSettings.fontWeight)
 
 				console.log("DOCUMENT ENTRY!!! ")
 				console.log(document)
-				let styleElement = document.getElementById("markdown-preview-pusher");
+				
 
-				if (!styleElement) {
-					styleElement = document.createElement("style");
-					styleElement.id = bionicStyleID;
+				//if (!styleElement) {
+					this.styleElement.id = bionicStyleID;
+					this.updateStyle();
+					console.log("Style: " + this.styleElement.outerHTML)
 
-					// Add your desired Bionic Reading styles targeting elements within the `.markdown-preview-view` class.
 
-					styleElement.innerHTML = `
-						 .markdown-preview-view span {
-							font-weight: bold;
-						}
-						`;
-					document.head.appendChild(styleElement);
+					document.head.appendChild(this.styleElement);
 					console.log("DOCUMEN STYLE Added!!! ")
 					console.log(document)
 					this.styleLoaded = true;
-				}
+				//}
 			}
 
 
@@ -94,136 +93,8 @@ export default class BionicReader extends Plugin {
 
 		});
 
-
-
-			
-
-		// this.app.workspace.on('file-menu', (menu) => {
-		// 	menu.addItem((menuItem) => {
-		// 		menuItem.setTitle("Toggle Bionic Reading Preview")
-		// 			.setIcon('fas fa-eye')
-		// 			.onClick(() => {
-		// 				this.registerMarkdownPostProcessor((element, context) => {
-		// 					const codeblocks = element.querySelectorAll("code");
-
-		// 					for (let index = 0; index < codeblocks.length; index++) {
-		// 						const codeblock = codeblocks.item(index);
-		// 						const text = codeblock.innerText.trim();
-		// 						const isEmoji = text[0] === ":" && text[text.length - 1] === ":";
-		// 						console.log("Test")
-		// 						if (isEmoji) {
-		// 							context.addChild(new Emoji(codeblock, text));
-		// 						}
-		// 					}
-		// 				});
-		// 			});
-		// 	});
-		// });
-
-
-		function toggleBionicReading(): void {
-			const bionicStyleID = "bionic-reading-style";
-
-			console.log("DOCUMENT ENTRY!!! ")
-			console.log(document)
-			let styleElement = document.getElementById("markdown-preview-pusher");
-			//let styleElement = document.getElementById(bionicStyleID);
-
-			if (!styleElement) {
-				styleElement = document.createElement("style");
-				styleElement.id = bionicStyleID;
-
-				// Add your desired Bionic Reading styles targeting elements within the `.markdown-preview-view` class.
-
-				styleElement.innerHTML = `
-			  .bionic-reading-style p {
-				font-weight: normal;
-				color: red;
-			  }
-			  
-			  .markdown-preview-view p::nth-word(2n) {
-				font-weight: bold;
-			  }
-
-			  .bionic-reading-style div{
-				font-weight: bolder;
-				color: blue;
-				}
-				
-			`;
-
-				document.head.appendChild(styleElement);
-
-				console.log("DOCUMENT!!! ")
-				console.log(document)
-
-			} else {
-				// If the style element already exists, remove it to toggle off Bionic Reading.
-				styleElement.remove();
-			}
-		}
-
-
-
-		function applyBionicReading(editor) {
-			// Hier können Sie Ihren Code hinzufügen, um den Bionic Reading-Stil auf den Editor-Inhalt anzuwenden.
-			// Zum Beispiel könnten Sie wichtige Wörter oder Sätze farblich hervorheben.
-
-			const content = editor.getValue();
-
-			// Eine einfache Möglichkeit wäre, jedes fünfte Wort fett zu formatieren:
-			const words = content.split(' ');
-
-			for (let i = 0; i < words.length; i++) {
-				if ((i + 1) % 5 === 0) {
-					words[i] = `**${words[i]}**`;
-				}
-			}
-
-			const updatedContent = words.join(' ');
-
-			editor.setValue(updatedContent);
-		}
-
-		// This adds a simple command that can be triggered anywhere
-		this.addCommand({
-			id: 'open-sample-modal-simple',
-			name: 'Open sample modal (simple)',
-			callback: () => {
-				new SampleBionicReader(this.app).open();
-			}
-		});
-		// This adds an editor command that can perform some operation on the current editor instance
-		this.addCommand({
-			id: 'sample-editor-command',
-			name: 'Sample editor command',
-			editorCallback: (editor: Editor, view: MarkdownView) => {
-				console.log(editor.getSelection());
-				editor.replaceSelection('Sample Editor Command');
-			}
-		});
-		// This adds a complex command that can check whether the current state of the app allows execution of the command
-		this.addCommand({
-			id: 'open-sample-modal-complex',
-			name: 'Open sample modal (complex)',
-			checkCallback: (checking: boolean) => {
-				// Conditions to check
-				const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
-				if (markdownView) {
-					// If checking is true, we're simply "checking" if the command can be run.
-					// If checking is false, then we want to actually perform the operation.
-					if (!checking) {
-						new SampleBionicReader(this.app).open();
-					}
-
-					// This command will only show up in Command Palette when the check function returns true
-					return true;
-				}
-			}
-		});
-
 		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
+		this.addSettingTab(new BionicReadingSettingTab(this.app, this));
 
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
 		// Using this function will automatically remove the event listener when this plugin is disabled.
@@ -235,8 +106,19 @@ export default class BionicReader extends Plugin {
 		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
 	}
 
+	updateStyle() {
+		// Set desired Bionic Reading styles targeting elements within the `.markdown-preview-view` class.
+		this.styleElement.innerHTML = `
+		.markdown-preview-view span {
+		   font-weight: ${this.settings.fontWeight};
+	   }
+	   `;
+	}
+		
+
+
 	onunload() {
-		//this.app.workspace.detachLeavesOfType(VIEW_TYPE_EXAMPLE);
+		this.styleElement.remove();
 	}
 
 	async loadSettings() {
@@ -245,51 +127,8 @@ export default class BionicReader extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings);
+		this.updateStyle();
 	}
 }
 
-class SampleBionicReader extends Modal {
-	constructor(app: App) {
-		super(app);
-	}
-
-	onOpen() {
-		const {contentEl} = this;
-		contentEl.setText('Woah!');
-	}
-
-	onClose() {
-		const {contentEl} = this;
-		contentEl.empty();
-	}
-}
-
-class SampleSettingTab extends PluginSettingTab {
-	plugin: BionicReader;
-
-	constructor(app: App, plugin: BionicReader) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
-
-	display(): void {
-		const {containerEl} = this;
-
-		containerEl.empty();
-
-		containerEl.createEl('h2', {text: 'Settings for BionicReader.'});
-
-		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
-			.addText(text => text
-				.setPlaceholder('Enter your secreta')
-				.setValue(this.plugin.settings.mySetting)
-				.onChange(async (value) => {
-					console.log('Secret: ' + value);
-					this.plugin.settings.mySetting = value;
-					await this.plugin.saveSettings();
-				}));
-	}
-}
 

@@ -1,11 +1,11 @@
 {
 	"id": "obsidian-bionic-reader",
 	"name": "Bionic Reader",
-	"version": "1.0.0",
-	"minAppVersion": "0.15.0",
+	"version": "0.8.0",
+	"minAppVersion": "1.0.0",
 	"description": "Obsidian Bionic Reader is a plugin that enhances your reading experience within Obsidian notes by applying the Bionic Reading method. It highlights important syllables in words to improve reading speed and comprehension, making it easier for users to digest large amounts of text quickly.",
 	"author": "Ivo Looser",
-	"authorUrl": "https://www.keystroke.ch/",
+	"authorUrl": "http://www.herculosh.com/",
 	"fundingUrl": "https://github.com/herculosh/obsidian-bionic-reader",
 	"isDesktopOnly": false
 }
