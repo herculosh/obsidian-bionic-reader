@@ -1,11 +1,11 @@
 {
-	"id": "obsidian-sample-plugin",
-	"name": "Sample Plugin",
+	"id": "obsidian-bionic-reader",
+	"name": "Bionic Reader",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "This is a sample plugin for Obsidian. This plugin demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"description": "Obsidian Bionic Reader is a plugin that enhances your reading experience within Obsidian notes by applying the Bionic Reading method. It highlights important syllables in words to improve reading speed and comprehension, making it easier for users to digest large amounts of text quickly.",
+	"author": "Ivo Looser",
+	"authorUrl": "https://www.keystroke.ch/",
+	"fundingUrl": "https://github.com/herculosh/obsidian-bionic-reader",
 	"isDesktopOnly": false
 }

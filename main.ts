@@ -1,39 +1,196 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Editor, MarkdownView, Modal, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { BionicReadingView } from './bionicReadingPreview';
 
 // Remember to rename these classes and interfaces!
 
-interface MyPluginSettings {
+interface BionicReaderSettings {
 	mySetting: string;
 }
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
+const DEFAULT_SETTINGS: BionicReaderSettings = {
 	mySetting: 'default'
 }
 
-export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings;
+
+  
+export default class BionicReader extends Plugin {
+	settings: BionicReaderSettings;
+
+	styleLoaded = false;
 
 	async onload() {
 		await this.loadSettings();
 
-		// This creates an icon in the left ribbon.
-		const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
-			// Called when the user clicks the icon.
-			new Notice('This is a notice!');
-		});
-		// Perform additional things with the ribbon
-		ribbonIconEl.addClass('my-plugin-ribbon-class');
+		this.registerMarkdownPostProcessor((element, context) => {
 
-		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-		const statusBarItemEl = this.addStatusBarItem();
-		statusBarItemEl.setText('Status Bar Text');
+			if (this.styleLoaded == false) {
+				//const paragraphs = element.querySelectorAll("code");
+				const bionicStyleID = "bionic-reading-style";
+
+				console.log("DOCUMENT ENTRY!!! ")
+				console.log(document)
+				let styleElement = document.getElementById("markdown-preview-pusher");
+
+				if (!styleElement) {
+					styleElement = document.createElement("style");
+					styleElement.id = bionicStyleID;
+
+					// Add your desired Bionic Reading styles targeting elements within the `.markdown-preview-view` class.
+
+					styleElement.innerHTML = `
+						 .markdown-preview-view span {
+							font-weight: bold;
+						}
+						`;
+					document.head.appendChild(styleElement);
+					console.log("DOCUMEN STYLE Added!!! ")
+					console.log(document)
+					this.styleLoaded = true;
+				}
+			}
+
+
+			const paragraphs = element.querySelectorAll("p");
+			console.log("QuerySelectorAll(p) passed")
+			console.log(paragraphs)
+			for (let index = 0; index < paragraphs.length; index++) {
+				const paragraph = paragraphs.item(index);
+				console.log("Paragraph contains: " + paragraph.innerText.trim())
+				const text = paragraph.innerText.trim();
+
+				//if (isEmoji) {
+				console.log("Codeblock is en Emoji")
+				context.addChild(new BionicReadingView(paragraph, text));
+				//}
+			}
+
+			const listitems = element.querySelectorAll("ul.has-list-bullet li[data-line]");
+			console.log("QuerySelectorAll(li) passed")
+			for (let index = 0; index < listitems.length; index++) {
+				const listitem = listitems.item(index);
+				console.log("Listitem contains innertext: " + listitem.innerText)
+				console.log("Listitem contains outertext: " + listitem.outerText)
+				const text = listitem.innerText;
+
+				//if (isEmoji) {
+				console.log("Codeblock is en Emoji")
+				context.addChild(new BionicReadingView(listitem, text));
+				//}
+			}
+
+			const unorderedlistitems = element.querySelectorAll("ol > li[data-line]");
+			console.log("QuerySelectorAll(ol) passed")
+			for (let index = 0; index < unorderedlistitems.length; index++) {
+				const unorderedlistitem = unorderedlistitems.item(index);
+				console.log("Listitem contains innertext: " + unorderedlistitem.innerText)
+				console.log("Listitem contains outertext: " + unorderedlistitem.outerText)
+				const text = unorderedlistitem.innerText;
+
+				//if (isEmoji) {
+				console.log("Codeblock is en Emoji")
+				context.addChild(new BionicReadingView(unorderedlistitem, text));
+				//}
+			}
+
+		});
+
+
+
+			
+
+		// this.app.workspace.on('file-menu', (menu) => {
+		// 	menu.addItem((menuItem) => {
+		// 		menuItem.setTitle("Toggle Bionic Reading Preview")
+		// 			.setIcon('fas fa-eye')
+		// 			.onClick(() => {
+		// 				this.registerMarkdownPostProcessor((element, context) => {
+		// 					const codeblocks = element.querySelectorAll("code");
+
+		// 					for (let index = 0; index < codeblocks.length; index++) {
+		// 						const codeblock = codeblocks.item(index);
+		// 						const text = codeblock.innerText.trim();
+		// 						const isEmoji = text[0] === ":" && text[text.length - 1] === ":";
+		// 						console.log("Test")
+		// 						if (isEmoji) {
+		// 							context.addChild(new Emoji(codeblock, text));
+		// 						}
+		// 					}
+		// 				});
+		// 			});
+		// 	});
+		// });
+
+
+		function toggleBionicReading(): void {
+			const bionicStyleID = "bionic-reading-style";
+
+			console.log("DOCUMENT ENTRY!!! ")
+			console.log(document)
+			let styleElement = document.getElementById("markdown-preview-pusher");
+			//let styleElement = document.getElementById(bionicStyleID);
+
+			if (!styleElement) {
+				styleElement = document.createElement("style");
+				styleElement.id = bionicStyleID;
+
+				// Add your desired Bionic Reading styles targeting elements within the `.markdown-preview-view` class.
+
+				styleElement.innerHTML = `
+			  .bionic-reading-style p {
+				font-weight: normal;
+				color: red;
+			  }
+			  
+			  .markdown-preview-view p::nth-word(2n) {
+				font-weight: bold;
+			  }
+
+			  .bionic-reading-style div{
+				font-weight: bolder;
+				color: blue;
+				}
+				
+			`;
+
+				document.head.appendChild(styleElement);
+
+				console.log("DOCUMENT!!! ")
+				console.log(document)
+
+			} else {
+				// If the style element already exists, remove it to toggle off Bionic Reading.
+				styleElement.remove();
+			}
+		}
+
+
+
+		function applyBionicReading(editor) {
+			// Hier können Sie Ihren Code hinzufügen, um den Bionic Reading-Stil auf den Editor-Inhalt anzuwenden.
+			// Zum Beispiel könnten Sie wichtige Wörter oder Sätze farblich hervorheben.
+
+			const content = editor.getValue();
+
+			// Eine einfache Möglichkeit wäre, jedes fünfte Wort fett zu formatieren:
+			const words = content.split(' ');
+
+			for (let i = 0; i < words.length; i++) {
+				if ((i + 1) % 5 === 0) {
+					words[i] = `**${words[i]}**`;
+				}
+			}
+
+			const updatedContent = words.join(' ');
+
+			editor.setValue(updatedContent);
+		}
 
 		// This adds a simple command that can be triggered anywhere
 		this.addCommand({
 			id: 'open-sample-modal-simple',
 			name: 'Open sample modal (simple)',
 			callback: () => {
-				new SampleModal(this.app).open();
+				new SampleBionicReader(this.app).open();
 			}
 		});
 		// This adds an editor command that can perform some operation on the current editor instance
@@ -56,7 +213,7 @@ export default class MyPlugin extends Plugin {
 					// If checking is true, we're simply "checking" if the command can be run.
 					// If checking is false, then we want to actually perform the operation.
 					if (!checking) {
-						new SampleModal(this.app).open();
+						new SampleBionicReader(this.app).open();
 					}
 
 					// This command will only show up in Command Palette when the check function returns true
@@ -79,7 +236,7 @@ export default class MyPlugin extends Plugin {
 	}
 
 	onunload() {
-
+		//this.app.workspace.detachLeavesOfType(VIEW_TYPE_EXAMPLE);
 	}
 
 	async loadSettings() {
@@ -91,7 +248,7 @@ export default class MyPlugin extends Plugin {
 	}
 }
 
-class SampleModal extends Modal {
+class SampleBionicReader extends Modal {
 	constructor(app: App) {
 		super(app);
 	}
@@ -108,9 +265,9 @@ class SampleModal extends Modal {
 }
 
 class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
+	plugin: BionicReader;
 
-	constructor(app: App, plugin: MyPlugin) {
+	constructor(app: App, plugin: BionicReader) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}
@@ -120,13 +277,13 @@ class SampleSettingTab extends PluginSettingTab {
 
 		containerEl.empty();
 
-		containerEl.createEl('h2', {text: 'Settings for my awesome plugin.'});
+		containerEl.createEl('h2', {text: 'Settings for BionicReader.'});
 
 		new Setting(containerEl)
 			.setName('Setting #1')
 			.setDesc('It\'s a secret')
 			.addText(text => text
-				.setPlaceholder('Enter your secret')
+				.setPlaceholder('Enter your secreta')
 				.setValue(this.plugin.settings.mySetting)
 				.onChange(async (value) => {
 					console.log('Secret: ' + value);
@@ -135,3 +292,4 @@ class SampleSettingTab extends PluginSettingTab {
 				}));
 	}
 }
+

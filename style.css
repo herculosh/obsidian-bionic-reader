@@ -1,0 +1,45 @@
+/*
+
+This CSS file will be included with your plugin, and
+available in the app when your plugin is enabled.
+
+If your plugin does not need CSS, delete this file.afsdfa
+
+*/
+.bionicReadingStyle {
+	/* Add your custom styles here */
+	color: red;
+  }
+
+.bionic-reading-style span{
+font-weight: bolder;
+color: red;
+}
+
+.bionic-reading-style div{
+	font-weight: bolder;
+	color: blue;
+	}
+	
+
+.markdown-preview-view p {
+font-weight: bold;
+}
+
+/* Create
+a custom css testing based on 
+https://marcus.se.net/obsidian-plugin-docs/user-interface/html-elements#style-your-elements
+*/
+.book {
+	border: 1px solid var(--background-modifier-border);
+	padding: 10px;
+  }
+  
+  .book__title {
+	font-weight: 600;
+	color: red;
+  }
+  
+  .book__author {
+	color: var(--text-muted);
+  }
